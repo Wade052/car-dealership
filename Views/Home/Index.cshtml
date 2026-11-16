@@ -1,0 +1,48 @@
+@model Car?
+@{
+    ViewData["Title"] = "Home";
+    var cover = Model?.Photos.OrderBy(photo => photo.DisplayOrder).FirstOrDefault()?.Url ?? Model?.ImageUrl;
+    var vehicleName = Model is null ? "" : $"{Model.Year} {Model.CarModel?.Make.Name} {Model.CarModel?.Name}".Trim();
+}
+
+<section class="home-hero">
+    <div class="hero-copy">
+        <p class="eyebrow">Motorline Auto / Vehicle inventory</p>
+        <h1>Find your<br class="d-none d-sm-inline" /> next car.</h1>
+        <p class="hero-intro">Compare photos, prices, and specs before you pick your next ride.</p>
+        <a asp-controller="Cars" asp-action="Index" class="btn btn-accent btn-lg">Browse inventory <span aria-hidden="true">&rarr;</span></a>
+    </div>
+    @if (Model is not null && !string.IsNullOrWhiteSpace(cover))
+    {
+        <a asp-controller="Cars" asp-action="Details" asp-route-id="@Model.Id" class="hero-vehicle">
+            <span class="hero-feature">Featured vehicle</span>
+            <img src="@cover" alt="" fetchpriority="high" />
+            <span class="hero-caption">
+                <strong>@vehicleName</strong><span>View details &rarr;</span>
+            </span>
+        </a>
+    }
+</section>
+
+<section class="home-guide" aria-label="Explore the inventory">
+    <div><h2>Explore the inventory</h2><p>Scan photos, prices, and mileage in one place.</p></div>
+    <div><h2>Get a closer look</h2><p>Open a listing to see the full gallery and specifications.</p></div>
+    <div><h2>See what’s available</h2><p>Check the status of each vehicle as you browse.</p></div>
+</section>
+
+<section class="mt-4" aria-labelledby="locations-heading">
+    <h2 id="locations-heading" class="h4 fw-bold">Our locations</h2>
+    <div class="row row-cols-1 row-cols-sm-2 g-3">
+        @foreach (var location in Html.GetEnumSelectList<car_dealership.Models.enums.DealershipLocation>())
+        {
+            <div class="col">
+                <div class="card surface-card h-100">
+                    <div class="card-body">
+                        <h3 class="h5">@location.Text</h3>
+                        <a asp-controller="Cars" asp-action="Index" asp-route-location="@location.Value">Browse @location.Text inventory</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>

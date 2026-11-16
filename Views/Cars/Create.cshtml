@@ -1,0 +1,358 @@
+@using car_dealership.Models
+@using car_dealership.Models.enums
+@model CreateCarInput
+@{
+    ViewData["Title"] = "Add a car";
+}
+
+@* The controller restricts this page to managers. *@
+<div class="mx-auto page-section" style="max-width: 900px;">
+    <a asp-action="Index" class="back-link">&larr; Back to inventory</a>
+    <div class="d-flex justify-content-between align-items-center gap-3 mt-4 mb-4">
+        <div>
+            <p class="eyebrow mb-2">Inventory management</p>
+            <h1 class="fw-bold mb-2">Add a car</h1>
+            <p class="text-secondary mb-0">Start with the vehicle, then enter its inventory details.</p>
+        </div>
+        <span class="badge rounded-pill bg-dark px-3 py-2">Manager</span>
+    </div>
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data" class="card surface-card entry-form">
+        <div class="card-body p-4 p-md-5">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <fieldset>
+                <legend class="h5 fw-bold">Vehicle selection</legend>
+                <p class="text-secondary small">Choose a make, then a model and year from the imported catalog.</p>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <label asp-for="MakeId" class="form-label fw-semibold">Make</label>
+                        <select asp-for="MakeId" asp-items="Model.Makes" class="form-select form-select-lg" required>
+                            <option value="">Select a make</option>
+                        </select>
+                        <span asp-validation-for="MakeId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="CarModelId" class="form-label fw-semibold">Model</label>
+                        <select asp-for="CarModelId" data-selected="@Model.CarModelId" class="form-select form-select-lg" required disabled>
+                            <option value="">Select a make first</option>
+                        </select>
+                        <span asp-validation-for="CarModelId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Year" class="form-label fw-semibold">Model year</label>
+                        <select asp-for="Year" data-selected="@Model.Year" class="form-select form-select-lg" aria-describedby="year-help" required disabled>
+                            <option value="">Select a model first</option>
+                        </select>
+                        <div id="year-help" class="form-text" role="status">Choose a model to see available years.</div>
+                        <span asp-validation-for="Year" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Location" class="form-label">Dealership location</label>
+                        <select asp-for="Location" asp-items="Html.GetEnumSelectList<DealershipLocation>()" class="form-select">
+                            <option value="">Select a location</option>
+                        </select>
+                        <span asp-validation-for="Location" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Trim" class="form-label fw-semibold">Trim</label>
+                        <input asp-for="Trim" maxlength="80" placeholder="e.g. XLE, Sport, or Touring" class="form-control" />
+                        <span asp-validation-for="Trim" class="text-danger"></span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <hr class="my-4" />
+            <fieldset>
+                <legend class="h5 fw-bold mb-3">Inventory details</legend>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label asp-for="Price" class="form-label fw-semibold">Price</label>
+                        <input asp-for="Price" type="number" min="0" step="0.01" placeholder="e.g. 24500.00" class="form-control" required />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Mileage" class="form-label fw-semibold">Odometer mileage</label>
+                        <input asp-for="Mileage" type="number" min="0" step="1" placeholder="e.g. 32000" class="form-control" required />
+                        <span asp-validation-for="Mileage" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-12">
+                        <label asp-for="VIN" class="form-label fw-semibold">Vehicle identification number</label>
+                        <input asp-for="VIN" type="text" minlength="17" maxlength="17"
+                               pattern="[A-HJ-NPR-Za-hj-npr-z0-9]{17}" spellcheck="false" autocapitalize="characters"
+                               aria-describedby="vin-help" class="form-control font-monospace" required />
+                        <div id="vin-help" class="form-text">17 letters and digits. The letters I, O, and Q are not allowed.</div>
+                        <span asp-validation-for="VIN" class="text-danger"></span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <hr class="my-4" />
+            <fieldset>
+                <legend class="h5 fw-bold mb-3">Appearance</legend>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label asp-for="ExteriorColor" class="form-label fw-semibold">Exterior color</label>
+                        <input asp-for="ExteriorColor" maxlength="80" placeholder="e.g. Silver" class="form-control" />
+                        <span asp-validation-for="ExteriorColor" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="InteriorColor" class="form-label fw-semibold">Interior color</label>
+                        <input asp-for="InteriorColor" maxlength="80" placeholder="e.g. Black" class="form-control" />
+                        <span asp-validation-for="InteriorColor" class="text-danger"></span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <hr class="my-4" />
+            <fieldset>
+                <legend class="h5 fw-bold mb-3">Vehicle specifications</legend>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <label asp-for="Type" class="form-label fw-semibold">Body style</label>
+                        <select asp-for="Type" asp-items="Html.GetEnumSelectList<CarType>()" class="form-select" required>
+                            <option value="">Select a body style</option>
+                        </select>
+                        <span asp-validation-for="Type" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Fuel" class="form-label fw-semibold">Fuel type</label>
+                        <select asp-for="Fuel" asp-items="Html.GetEnumSelectList<FuelType>()" class="form-select" required>
+                            <option value="">Select a fuel type</option>
+                        </select>
+                        <span asp-validation-for="Fuel" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Transmission" class="form-label fw-semibold">Transmission</label>
+                        <select asp-for="Transmission" asp-items="Html.GetEnumSelectList<TransmissionType>()" class="form-select" required>
+                            <option value="">Select a transmission</option>
+                        </select>
+                        <span asp-validation-for="Transmission" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Drivetrain" class="form-label fw-semibold">Drivetrain</label>
+                        <select asp-for="Drivetrain" asp-items="Html.GetEnumSelectList<DriveTrain>()" class="form-select" required>
+                            <option value="">Select a drivetrain</option>
+                        </select>
+                        <span asp-validation-for="Drivetrain" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Engine" class="form-label fw-semibold">Engine</label>
+                        <input asp-for="Engine" maxlength="100" placeholder="e.g. 2.0 L inline-four turbo" class="form-control" />
+                        <span asp-validation-for="Engine" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Horsepower" class="form-label fw-semibold">Horsepower</label>
+                        <input asp-for="Horsepower" type="number" min="1" step="1" class="form-control" />
+                        <span asp-validation-for="Horsepower" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Doors" class="form-label fw-semibold">Doors</label>
+                        <input asp-for="Doors" type="number" min="1" step="1" class="form-control" />
+                        <span asp-validation-for="Doors" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Seats" class="form-label fw-semibold">Seats</label>
+                        <input asp-for="Seats" type="number" min="1" step="1" class="form-control" />
+                        <span asp-validation-for="Seats" class="text-danger"></span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <hr class="my-4" />
+            <fieldset>
+                <legend class="h5 fw-bold mb-3">Condition and availability</legend>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <label asp-for="Condition" class="form-label fw-semibold">Condition</label>
+                        <select asp-for="Condition" asp-items="Html.GetEnumSelectList<Condition>()" class="form-select" required>
+                            <option value="">Select a condition</option>
+                        </select>
+                        <span asp-validation-for="Condition" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Title" class="form-label fw-semibold">Title history</label>
+                        <select asp-for="Title" asp-items="Html.GetEnumSelectList<VehicleTitle>()" class="form-select" required>
+                            <option value="">Select a title type</option>
+                        </select>
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Status" class="form-label fw-semibold">Inventory status</label>
+                        <select asp-for="Status" asp-items="Html.GetEnumSelectList<Status>()" class="form-select" required>
+                            <option value="">Select a status</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <hr class="my-4" />
+            <fieldset>
+                <legend class="h5 fw-bold mb-3">Warranty</legend>
+                <div class="row g-4">
+                    <div class="col-md-6 d-flex align-items-md-center">
+                        <div class="form-check">
+                            <input asp-for="HasWarranty" class="form-check-input" />
+                            <label asp-for="HasWarranty" class="form-check-label">Has warranty</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="WarrantyExpiration" class="form-label fw-semibold">Warranty expiration (if known)</label>
+                        <input asp-for="WarrantyExpiration" type="date" class="form-control" />
+                        <span asp-validation-for="WarrantyExpiration" class="text-danger"></span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <hr class="my-4" />
+            <fieldset>
+                <legend class="h5 fw-bold mb-3">Listing description</legend>
+                <div class="row g-4">
+                    <div class="col-md-12">
+                        <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                        <textarea asp-for="Description" rows="4" maxlength="2000" class="form-control" placeholder="Add features, options, or notes about the car."></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <hr class="my-4" />
+            <fieldset>
+                <legend class="h5 fw-bold mb-3">Car photos <span class="text-secondary small fw-normal">(optional)</span></legend>
+                <label asp-for="Photos" class="form-label">Choose images</label>
+                <input asp-for="Photos" type="file" class="form-control" multiple
+                       accept="image/jpeg,image/png,image/webp" aria-describedby="photo-help photo-selection"
+                       data-max-photos="@CreateCarInput.MaxPhotos" data-max-bytes="@CreateCarInput.MaxPhotoBytes" />
+                <span asp-validation-for="Photos" class="text-danger"></span>
+                <div id="photo-help" class="form-text">
+                    Choose up to @CreateCarInput.MaxPhotos JPEG, PNG, or WebP images, up to 5 MB each.
+                    The first preview is the cover. If the form has errors, select the photos again.
+                </div>
+                <div id="photo-selection" class="form-text" role="status"></div>
+                <div id="photo-preview" class="d-flex flex-wrap gap-3 mt-3"></div>
+            </fieldset>
+            <button type="submit" class="btn btn-primary mt-4">Save car</button>
+            <noscript><p class="text-danger mt-3">Enable JavaScript to choose a vehicle model.</p></noscript>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const make = document.getElementById('MakeId');
+            const model = document.getElementById('CarModelId');
+            const year = document.getElementById('Year');
+            const help = document.getElementById('year-help');
+            const modelUrl = '@Url.Action("ModelOptions", "Cars")';
+            const yearUrl = '@Url.Action("YearOptions", "Cars")';
+            let version = 0;
+
+            function reset(select, message) {
+                select.replaceChildren(new Option(message, ''));
+                select.disabled = true;
+            }
+
+            async function load(select, url, placeholder, current) {
+                try {
+                    const response = await fetch(url, { headers: { Accept: 'application/json' } });
+                    if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) {
+                        throw new Error('Catalog response unavailable');
+                    }
+                    const choices = await response.json();
+                    // Ignore results for a make or model that is no longer selected.
+                    if (current !== version) return;
+                    reset(select, choices.length ? placeholder : 'No imported choices available');
+                    choices.forEach(choice => select.add(new Option(choice.name, choice.id)));
+                    select.disabled = choices.length === 0;
+                } catch {
+                    if (current !== version) return;
+                    reset(select, 'Unable to load choices');
+                    help.textContent = 'Unable to load choices. Check your login and try again.';
+                }
+            }
+
+            async function updateModels() {
+                const current = ++version;
+                reset(model, make.value ? 'Loading models...' : 'Select a make first');
+                reset(year, 'Select a model first');
+                help.textContent = 'Choose a model to see available years.';
+                if (make.value) {
+                    await load(model, modelUrl + '?makeId=' + encodeURIComponent(make.value), 'Select a model', current);
+                }
+            }
+
+            async function updateYears() {
+                const current = ++version;
+                reset(year, model.value ? 'Loading years...' : 'Select a model first');
+                help.textContent = 'Only imported years for this model are shown.';
+                if (model.value) {
+                    await load(year, yearUrl + '?carModelId=' + encodeURIComponent(model.value), 'Select a year', current);
+                }
+            }
+
+            make.addEventListener('change', updateModels);
+            model.addEventListener('change', updateYears);
+            window.addEventListener('pageshow', async () => {
+                // Restore catalog selections after a validation error.
+                const selectedModel = model.value || model.dataset.selected;
+                const selectedYear = year.value || year.dataset.selected;
+                const expectedVersion = version + 1;
+                await updateModels();
+                if (version !== expectedVersion || !Array.from(model.options).some(option => option.value === selectedModel)) return;
+                model.value = selectedModel;
+                await updateYears();
+                if (version === expectedVersion + 1 && Array.from(year.options).some(option => option.value === selectedYear)) {
+                    year.value = selectedYear;
+                }
+            });
+
+            const hasWarranty = document.getElementById('HasWarranty');
+            const warrantyExpiration = document.getElementById('WarrantyExpiration');
+            function updateWarranty() {
+                warrantyExpiration.disabled = !hasWarranty.checked;
+            }
+            hasWarranty.addEventListener('change', updateWarranty);
+            window.addEventListener('pageshow', updateWarranty);
+            updateWarranty();
+
+            const photos = document.getElementById('Photos');
+            const preview = document.getElementById('photo-preview');
+            const selection = document.getElementById('photo-selection');
+            const previewUrls = [];
+
+            photos.addEventListener('change', () => {
+                previewUrls.forEach(url => URL.revokeObjectURL(url));
+                previewUrls.length = 0;
+                preview.replaceChildren();
+                photos.setCustomValidity('');
+                const files = Array.from(photos.files);
+                const maxPhotos = Number(photos.dataset.maxPhotos);
+                if (files.length > maxPhotos) {
+                    photos.setCustomValidity('Choose up to ' + maxPhotos + ' photos.');
+                } else if (files.some(file => !file.size || file.size > Number(photos.dataset.maxBytes))) {
+                    photos.setCustomValidity('Each photo must be between 1 byte and 5 MB.');
+                }
+                selection.textContent = photos.validationMessage;
+                if (!photos.validity.valid) return;
+
+                files.forEach((file, index) => {
+                    const url = URL.createObjectURL(file);
+                    previewUrls.push(url);
+                    const figure = document.createElement('figure');
+                    figure.className = 'mb-0';
+                    const image = document.createElement('img');
+                    image.src = url;
+                    image.alt = 'Preview of car photo ' + (index + 1);
+                    image.className = 'img-thumbnail';
+                    image.style.cssText = 'width: 140px; height: 100px; object-fit: cover;';
+                    const caption = document.createElement('figcaption');
+                    caption.className = 'small text-secondary';
+                    caption.textContent = index === 0 ? 'Cover photo' : 'Photo ' + (index + 1);
+                    figure.append(image, caption);
+                    preview.append(figure);
+                });
+            });
+        })();
+    </script>
+}

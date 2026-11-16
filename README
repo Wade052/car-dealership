@@ -1,0 +1,28 @@
+# Motorline Auto
+
+Motorline Auto is an ASP.NET Core MVC dealership app for two Pennsylvania locations, Altoona and State College. It uses .NET 10, Entity Framework Core, SQLite, and ASP.NET Core Identity.
+
+- Customers can browse inventory, filter by vehicle type, make, year, price, and dealership, and open listings to see specifications and photos.
+- Customers can estimate monthly payments using a down payment, credit score, and loan term.
+- Managers can add and edit listings, upload vehicle photos, assign dealership locations, and review sold, pending or reserved, and total inventory counts.
+
+## Seed the vehicle catalog
+
+From the folder containing car-dealership.csproj, run this command to import model years 1996–2027 for a selection of common U.S.-market makes. The importer applies database migrations and needs internet access to reach the NHTSA vehicle catalog.
+
+```powershell
+dotnet run -p:UseAppHost=false -- --import-catalog --from 1996 --to 2027 --makes "Toyota,Honda,Ford,Chevrolet,Nissan,Hyundai,Kia,Subaru,Jeep,Ram,GMC,Dodge,Volkswagen,Mazda,BMW,Mercedes-Benz,Lexus,Tesla,Mitsubishi,Buick"
+```
+
+This fills the make, model, and year options used when adding a vehicle. Add sale listings separately through the manager inventory screens.
+
+## Run locally
+
+Install the .NET 10 SDK, then run these commands from the project folder.
+
+```powershell
+dotnet restore
+dotnet run
+```
+
+Open the local URL printed in the terminal.

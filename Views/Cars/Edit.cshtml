@@ -1,0 +1,53 @@
+@using car_dealership.Models.enums
+@model car_dealership.Models.EditCarColorsInput
+
+@{
+    ViewData["Title"] = "Edit listing";
+}
+
+<div class="mx-auto page-section" style="max-width: 760px;">
+    <a asp-action="Details" asp-route-id="@Model.CarId" class="back-link">&larr; Back to car details</a>
+    <h1 class="fw-bold mt-3 mb-2">Edit listing</h1>
+    <p class="text-secondary mb-4">@Model.VehicleName</p>
+
+    <form asp-action="Edit" asp-route-id="@Model.CarId" method="post" class="card surface-card entry-form">
+        <div class="card-body p-4">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Location" class="form-label">Dealership location</label>
+                    <select asp-for="Location" asp-items="Html.GetEnumSelectList<DealershipLocation>()" class="form-select">
+                        <option value="">Unassigned</option>
+                    </select>
+                    <span asp-validation-for="Location" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Trim" class="form-label fw-semibold">Trim</label>
+                    <input asp-for="Trim" maxlength="80" placeholder="e.g. XLE, Sport, or Touring" class="form-control" />
+                    <span asp-validation-for="Trim" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ExteriorColor" class="form-label fw-semibold">Exterior color</label>
+                    <input asp-for="ExteriorColor" maxlength="80" placeholder="e.g. Silver" class="form-control" />
+                    <span asp-validation-for="ExteriorColor" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="InteriorColor" class="form-label fw-semibold">Interior color</label>
+                    <input asp-for="InteriorColor" maxlength="80" placeholder="e.g. Black" class="form-control" />
+                    <span asp-validation-for="InteriorColor" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Status" class="form-label fw-semibold">Inventory status</label>
+                    <select asp-for="Status" asp-items="Html.GetEnumSelectList<car_dealership.Models.enums.Status>()"
+                            class="form-select" required>
+                        <option value="">Select a status</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+            </div>
+            <p class="form-text mb-3">Leave trim or colors blank if they are unknown.</p>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <a asp-action="Details" asp-route-id="@Model.CarId" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </div>
+    </form>
+</div>

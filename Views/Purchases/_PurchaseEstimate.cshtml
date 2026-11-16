@@ -1,0 +1,12 @@
+@model PurchaseQuote
+
+<p class="h2 fw-bold mt-3 mb-3">@Model.MonthlyPayment.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US")) <span class="fs-6 fw-normal text-secondary">/ month estimated</span></p>
+<dl class="row gy-1 mb-0">
+    <dt class="col-7">Vehicle price</dt><dd class="col-5 text-end">@Model.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</dd>
+    <dt class="col-7">Down payment</dt><dd class="col-5 text-end">@Model.DownPayment.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</dd>
+    <dt class="col-7">Amount financed</dt><dd class="col-5 text-end">@Model.AmountFinanced.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</dd>
+    <dt class="col-7">Example annual rate</dt><dd class="col-5 text-end">@Model.AnnualRate.ToString("0.##")%</dd>
+    <dt class="col-7">Loan term</dt><dd class="col-5 text-end">@Model.Months months</dd>
+    <dt class="col-7">Estimated total interest</dt><dd class="col-5 text-end">@Model.TotalInterest.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</dd>
+    <dt class="col-7">Estimated total with down payment</dt><dd class="col-5 text-end">@Model.TotalCost.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</dd>
+</dl>

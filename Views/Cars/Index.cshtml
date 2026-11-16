@@ -1,0 +1,130 @@
+@using car_dealership.Models.enums
+@model InventorySearch
+
+@{
+    ViewData["Title"] = "Car Inventory";
+}
+
+<section class="page-section">
+    <header class="page-intro">
+        <div>
+            <p class="eyebrow">Motorline Auto / Inventory</p>
+            <h1>Car Inventory</h1>
+            <p>Select a vehicle to view its photos, specifications, and listing details.</p>
+        </div>
+        <span class="inventory-count">@Model.Cars.Count @(Model.Cars.Count == 1 ? "listing" : "listings")</span>
+    </header>
+
+    <div class="inventory-layout">
+        <aside aria-label="Inventory filters">
+            <details class="surface-card inventory-filters" open>
+                <summary>Filters</summary>
+                <form asp-action="Index" method="get" class="entry-form" aria-label="Filter inventory">
+                    <div class="card-body">
+                        <div class="d-grid gap-3">
+                            <div>
+                                <label asp-for="Type" class="form-label">Vehicle type</label>
+                                <select asp-for="Type" asp-items="Html.GetEnumSelectList<CarType>()" class="form-select">
+                                    <option value="">All types</option>
+                                </select>
+                                <span asp-validation-for="Type" class="text-danger small"></span>
+                            </div>
+                            <div>
+                                <label asp-for="MakeId" class="form-label">Make</label>
+                                <select asp-for="MakeId" asp-items="Model.Makes" class="form-select">
+                                    <option value="">All makes</option>
+                                </select>
+                                <span asp-validation-for="MakeId" class="text-danger small"></span>
+                            </div>
+                            <div class="mb-1">
+                                <label asp-for="Location" class="form-label">Dealership location</label>
+                                <select asp-for="Location" asp-items="Html.GetEnumSelectList<DealershipLocation>()" class="form-select">
+                                    <option value="">Both locations</option>
+                                </select>
+                                <span asp-validation-for="Location" class="text-danger small"></span>
+                            </div>
+                            <div>
+                                <label asp-for="Year" class="form-label">Model year</label>
+                                <select asp-for="Year" asp-items="Model.Years" class="form-select">
+                                    <option value="">All years</option>
+                                </select>
+                                <span asp-validation-for="Year" class="text-danger small"></span>
+                            </div>
+                            <fieldset data-price-filters data-slider-max="@Model.SliderMaxPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                                <legend class="h6 mb-2">Price range</legend>
+                                <div class="mb-3">
+                                    <label asp-for="MinPrice" class="form-label">Min price ($)</label>
+                                    <input asp-for="MinPrice" type="number" min="0" step="0.01" class="form-control" placeholder="Any" />
+                                    <input type="range" class="form-range mt-2" data-price-slider="min" aria-label="Minimum price in dollars" hidden />
+                                    <span asp-validation-for="MinPrice" class="text-danger small"></span>
+                                </div>
+                                <div>
+                                    <label asp-for="MaxPrice" class="form-label">Max price ($)</label>
+                                    <input asp-for="MaxPrice" type="number" min="0" step="0.01" class="form-control" placeholder="Any" />
+                                    <input type="range" class="form-range mt-2" data-price-slider="max" aria-label="Maximum price in dollars" hidden />
+                                    <span asp-validation-for="MaxPrice" class="text-danger small"></span>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <button type="submit" class="btn btn-primary">Search inventory</button>
+                            <a asp-action="Index" class="btn btn-outline-primary">Clear filters</a>
+                        </div>
+                    </div>
+                </form>
+
+            </details>
+        </aside>
+        <div class="inventory-results">
+            @if (ViewData.ModelState.IsValid && Model.Cars.Count == 0)
+            {
+                <p class="alert alert-secondary">No cars match your search.</p>
+            }
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                @foreach (var car in Model.Cars)
+                {
+                    var title = $"{car.Year} {car.CarModel?.Make.Name} {car.CarModel?.Name}".Trim();
+                    var coverUrl = car.Photos.OrderBy(photo => photo.DisplayOrder).FirstOrDefault()?.Url ?? car.ImageUrl;
+
+                    <div class="col">
+                        <article class="card vehicle-card h-100 overflow-hidden">
+                            @* One link makes the photo, title, and details label part of the same target. *@
+                            <a asp-action="Details" asp-route-id="@car.Id"
+                               class="d-flex flex-column h-100 text-decoration-none text-reset"
+                               aria-label="View details for @title">
+                                <div class="ratio ratio-16x9 vehicle-photo">
+                                    @if (!string.IsNullOrWhiteSpace(coverUrl))
+                                    {
+                                        <img src="@coverUrl" alt="" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <div class="d-flex align-items-center justify-content-center text-secondary">No photo yet</div>
+                                    }
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                                        <h2 class="h5 fw-bold mb-0">@title</h2>
+                                        <span class="status-chip status-@car.Status.ToString().ToLowerInvariant()">@car.Status</span>
+                                    </div>
+                                    <p class="text-secondary mb-3">@car.Mileage.ToString("N0") miles</p>
+                                    <p class="text-secondary small mb-2">@car.LocationName</p>
+                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-auto">
+                                        <span class="h5 fw-bold mb-0">@car.Price.ToString("C")</span>
+                                        <span class="card-details-link">View details &rarr;</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </article>
+                    </div>
+                }
+            </div>
+
+            @if (Model.Cars.Any(car => car.VIN.StartsWith("TESTCAR")))
+            {
+                <p class="small mt-4"><a href="~/sample-photo-credits.html">Demo inventory photo credits</a></p>
+            }
+        </div>
+    </div>
+</section>

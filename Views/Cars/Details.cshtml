@@ -1,0 +1,136 @@
+@model car_dealership.Models.Car
+
+@{
+    var title = $"{Model.Year} {Model.CarModel?.Make.Name} {Model.CarModel?.Name}".Trim();
+    ViewData["Title"] = title;
+    var photos = Model.Photos.OrderBy(photo => photo.DisplayOrder).Select(photo => photo.Url).ToList();
+    if (photos.Count == 0 && !string.IsNullOrWhiteSpace(Model.ImageUrl))
+    {
+        photos.Add(Model.ImageUrl);
+    }
+}
+
+<div class="page-section">
+    <a asp-action="Index" class="back-link">&larr; Back to inventory</a>
+
+    <div class="page-intro detail-intro">
+        <div>
+            <span class="status-chip status-@Model.Status.ToString().ToLowerInvariant() mb-2">@Model.Status</span>
+            <h1 class="fw-bold mb-1">@title</h1>
+            <p class="text-secondary mb-0">@Model.Mileage.ToString("N0") miles</p>
+            <p class="text-secondary small mb-2">@Model.LocationName</p>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-3">
+            <p class="h3 fw-bold mb-0">@Model.Price.ToString("C")</p>
+            @if (Model.Status == car_dealership.Models.enums.Status.Available)
+            {
+                <a asp-controller="Purchases" asp-action="Buy" asp-route-id="@Model.Id" class="btn btn-primary">Buy / estimate payments</a>
+            }
+            @if (User.IsInRole("Manager"))
+            {
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Edit listing</a>
+            }
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <section aria-label="Vehicle photos">
+                @if (photos.Count == 0)
+                {
+                    <div class="ratio ratio-16x9 vehicle-photo border rounded">
+                        <div class="d-flex align-items-center justify-content-center text-secondary">No photo yet</div>
+                    </div>
+                }
+                else
+                {
+                    <a href="@photos[0]" class="detail-photo">
+                        <img src="@photos[0]" alt="Cover photo of the @title" class="d-block w-100"
+                             style="max-height: 34rem; object-fit: contain;" />
+                    </a>
+                    @if (photos.Count > 1)
+                    {
+                        <h2 class="h6 mt-4">More photos</h2>
+                        <div class="d-flex flex-wrap gap-2">
+                            @for (var i = 1; i < photos.Count; i++)
+                            {
+                                <a href="@photos[i]">
+                                    <img src="@photos[i]" alt="@title photo @(i + 1)" class="img-thumbnail" loading="lazy"
+                                         style="width: 140px; height: 96px; object-fit: cover;" />
+                                </a>
+                            }
+                        </div>
+                    }
+                }
+            </section>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <section class="mt-4">
+                    <h2 class="h5 fw-bold">Description</h2>
+                    <p style="white-space: pre-line;">@Model.Description</p>
+                </section>
+            }
+            @if (Model.VIN.StartsWith("TESTCAR"))
+            {
+                <p class="small"><a href="~/sample-photo-credits.html">Demo inventory photo credits</a></p>
+            }
+        </div>
+
+        <div class="col-lg-5">
+            <section class="card surface-card mb-4">
+                <div class="card-body">
+                    <h2 class="h5 fw-bold mb-3">Vehicle specifications</h2>
+                    <dl class="row mb-0">
+                        <dt class="col-6">Make</dt><dd class="col-6">@(Model.CarModel?.Make.Name ?? "Not provided")</dd>
+                        <dt class="col-6">Model</dt><dd class="col-6">@(Model.CarModel?.Name ?? "Not provided")</dd>
+                        <dt class="col-6">Model year</dt><dd class="col-6">@Model.Year</dd>
+                        <dt class="col-6">Trim</dt><dd class="col-6">@(string.IsNullOrWhiteSpace(Model.Trim) ? "Not provided" : Model.Trim)</dd>
+                        <dt class="col-6">VIN</dt><dd class="col-6 font-monospace text-break">@Model.VIN</dd>
+                        <dt class="col-6">Body style</dt><dd class="col-6">@Model.Type</dd>
+                        <dt class="col-6">Fuel</dt><dd class="col-6">@Model.Fuel</dd>
+                        <dt class="col-6">Transmission</dt><dd class="col-6">@Model.Transmission</dd>
+                        <dt class="col-6">Drivetrain</dt><dd class="col-6">@Model.Drivetrain</dd>
+                        <dt class="col-6">Exterior color</dt><dd class="col-6">@(string.IsNullOrWhiteSpace(Model.ExteriorColor) ? "Not provided" : Model.ExteriorColor)</dd>
+                        <dt class="col-6">Interior color</dt><dd class="col-6">@(string.IsNullOrWhiteSpace(Model.InteriorColor) ? "Not provided" : Model.InteriorColor)</dd>
+                        @if (!string.IsNullOrWhiteSpace(Model.Engine))
+                        {
+                            <dt class="col-6">Engine</dt><dd class="col-6">@Model.Engine</dd>
+                        }
+                        @if (Model.Horsepower.HasValue)
+                        {
+                            <dt class="col-6">Horsepower</dt><dd class="col-6">@Model.Horsepower</dd>
+                        }
+                        @if (Model.Doors.HasValue)
+                        {
+                            <dt class="col-6">Doors</dt><dd class="col-6">@Model.Doors</dd>
+                        }
+                        @if (Model.Seats.HasValue)
+                        {
+                            <dt class="col-6">Seats</dt><dd class="col-6">@Model.Seats</dd>
+                        }
+                    </dl>
+                </div>
+            </section>
+
+            <section class="card surface-card">
+                <div class="card-body">
+                    <h2 class="h5 fw-bold mb-3">Listing details</h2>
+                    <dl class="row mb-0">
+                        <dt class="col-5">Condition</dt><dd class="col-7">@Model.Condition</dd>
+                        <dt class="col-5">Title</dt><dd class="col-7">@Model.Title</dd>
+                        <dt class="col-5">Warranty</dt>
+                        <dd class="col-7">
+                            @(Model.HasWarranty ? "Yes" : "No")
+                            @if (Model.HasWarranty && Model.WarrantyExpiration is { } expiration)
+                            {
+                                <span class="d-block small text-secondary">Expires @expiration.ToString("MMM d, yyyy")</span>
+                            }
+                        </dd>
+                        <dt class="col-5">Date added</dt><dd class="col-7">@Model.DateAdded.ToString("MMM d, yyyy")</dd>
+                    </dl>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>

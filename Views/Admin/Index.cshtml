@@ -1,0 +1,41 @@
+@model InventorySummary
+
+@{
+    ViewData["Title"] = "Admin dashboard";
+    var metrics = new (string Label, int Count, string Badge)[]
+    {
+        ("Sold", Model.Sold, "status-sold"),
+        ("Pending", Model.Pending, "status-pending"),
+        ("Reserved", Model.Reserved, "status-reserved"),
+        ("Available", Model.Available, "status-available")
+    };
+}
+
+<section class="page-section">
+    <header class="page-intro">
+        <h1>Admin dashboard</h1>
+        <a asp-controller="Cars" asp-action="Index" class="btn btn-outline-primary">View inventory</a>
+    </header>
+
+    <div class="card surface-card mb-4">
+        <div class="card-body p-4">
+            <h2 class="h5 fw-bold">Unsold inventory value</h2>
+            <p class="h2 mb-2">@Model.InventoryValue.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</p>
+            <p class="text-secondary mb-0">@Model.Unsold unsold out of @Model.TotalListings total listings. Value is based on list prices.</p>
+        </div>
+    </div>
+
+    <div class="row row-cols-2 row-cols-lg-4 g-3">
+        @foreach (var metric in metrics)
+        {
+            <div class="col">
+                <section class="card surface-card h-100">
+                    <div class="card-body">
+                        <h2 class="status-chip @metric.Badge">@metric.Label</h2>
+                        <p class="h2 mb-0">@metric.Count.ToString("N0")</p>
+                    </div>
+                </section>
+            </div>
+        }
+    </div>
+</section>

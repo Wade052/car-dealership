@@ -1,0 +1,25 @@
+@model CarPurchase
+@{
+    var car = Model.Car;
+    var title = $"{car.Year} {car.CarModel?.Make.Name} {car.CarModel?.Name}".Trim();
+    ViewData["Title"] = "Demo purchase confirmation";
+}
+
+<section class="page-section mx-auto" style="max-width: 760px;">
+    <header class="page-intro">
+        <div>
+            <p class="eyebrow">Motorline Auto / Demo purchase</p>
+            <h1>Demo purchase confirmed</h1>
+            <p>@title &middot; Confirmation #@Model.Id</p>
+        </div>
+    </header>
+    <div class="card surface-card">
+        <div class="card-body p-4">
+            <h2 class="h5 fw-bold">Estimated financing</h2>
+            <partial name="_PurchaseEstimate" model="Model.Estimate" />
+            <p class="form-text mt-3">This was a simulated purchase. No funds were collected or loan opened.</p>
+            <a asp-controller="Cars" asp-action="Details" asp-route-id="@Model.CarId" class="btn btn-outline-primary">View vehicle</a>
+            <a asp-controller="Cars" asp-action="Index" class="btn btn-primary ms-2">Back to inventory</a>
+        </div>
+    </div>
+</section>

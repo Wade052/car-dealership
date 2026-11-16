@@ -1,0 +1,98 @@
+@using car_dealership.Models.enums
+@model BuyCarInput
+@{
+    var car = Model.Vehicle;
+    var title = $"{car.Year} {car.CarModel?.Make.Name} {car.CarModel?.Name}".Trim();
+    var cover = car.Photos.OrderBy(photo => photo.DisplayOrder).FirstOrDefault()?.Url ?? car.ImageUrl;
+    ViewData["Title"] = "Buy / estimate payments";
+}
+
+<section class="page-section">
+    <a asp-controller="Cars" asp-action="Details" asp-route-id="@car.Id" class="back-link">&larr; Back to car details</a>
+    <header class="page-intro mt-3">
+        <div>
+            <p class="eyebrow">Motorline Auto / Demo purchase</p>
+            <h1>Estimate your payment</h1>
+            <p>Try different down payments and terms before confirming a simulated purchase.</p>
+        </div>
+    </header>
+
+    @if (TempData["PurchaseMessage"] is string message)
+    {
+        <div class="alert alert-warning" role="status">@message</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <article class="card surface-card overflow-hidden">
+                @if (!string.IsNullOrWhiteSpace(cover))
+                {
+                    <div class="ratio ratio-16x9 vehicle-photo"><img src="@cover" alt="@title" /></div>
+                }
+                <div class="card-body">
+                    <h2 class="h5">@title</h2>
+                    <p class="text-secondary">@car.Mileage.ToString("N0") miles</p>
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <strong class="h4 mb-0">@car.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</strong>
+                        <span class="status-chip status-@car.Status.ToString().ToLowerInvariant()">@car.Status</span>
+                    </div>
+                </div>
+            </article>
+        </div>
+        <div class="col-lg-8">
+            @if (car.Status != Status.Available)
+            {
+                <div class="alert alert-warning">This vehicle is no longer available for purchase.</div>
+            }
+            else
+            {
+                <form asp-action="Buy" asp-route-id="@car.Id" method="post" class="card surface-card entry-form">
+                    <div class="card-body p-4">
+                        <h2 class="h5 fw-bold mb-3">Financing estimate</h2>
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label asp-for="CreditScore" class="form-label"></label>
+                                <input asp-for="CreditScore" type="number" class="form-control" min="300" max="850" step="1" placeholder="e.g. 720" required />
+                                <span asp-validation-for="CreditScore" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="DownPayment" class="form-label"></label>
+                                <input asp-for="DownPayment" type="number" class="form-control" min="0" step="0.01" required />
+                                <span asp-validation-for="DownPayment" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Months" class="form-label"></label>
+                                <select asp-for="Months" class="form-select">
+                                    <option value="24">24 months</option>
+                                    <option value="36">36 months</option>
+                                    <option value="48">48 months</option>
+                                    <option value="60">60 months</option>
+                                    <option value="72">72 months</option>
+                                </select>
+                                <span asp-validation-for="Months" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <p class="form-text mt-3">Use a sample credit score. The calculator uses fictional rates and excludes taxes, fees, and insurance. The app does not save the score.</p>
+                        <button type="submit" class="btn btn-outline-primary">Calculate estimate</button>
+                    </div>
+                </form>
+
+                @if (Model.Estimate is { } estimate)
+                {
+                    <section class="card surface-card mt-4" aria-labelledby="estimate-heading">
+                        <div class="card-body p-4">
+                            <h2 id="estimate-heading" class="h5 fw-bold">Your estimate</h2>
+                            <partial name="_PurchaseEstimate" model="estimate" />
+                            <form asp-action="Confirm" asp-route-id="@car.Id" method="post" class="mt-3">
+                                <input type="hidden" name="confirmationToken" value="@Model.ConfirmationToken" />
+                                <p class="text-secondary small">Confirming records a demo purchase and marks the car sold. No money is collected.</p>
+                                <button type="submit" class="btn btn-primary">Confirm demo purchase</button>
+                            </form>
+                        </div>
+                    </section>
+                }
+            }
+        </div>
+    </div>
+</section>

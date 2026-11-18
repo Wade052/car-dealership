@@ -95,9 +95,48 @@ using (var scope = app.Services.CreateScope())
 
     var user = await userManager.FindByEmailAsync("Test2@gmail.com");
 
+    // Seed the demo manager so a fresh database has a usable login.
+    const string managerPassword = "Abc123!";
     if (user is null)
     {
-        throw new InvalidOperationException("Manager account was not found");
+        user = new IdentityUser
+        {
+            UserName = "Test2@gmail.com",
+            Email = "Test2@gmail.com",
+            EmailConfirmed = true
+        };
+
+        var result = await userManager.CreateAsync(user, managerPassword);
+        if (!result.Succeeded)
+        {
+            throw new InvalidOperationException(
+                string.Join("; ", result.Errors.Select(error => error.Description)));
+        }
+    }
+    else
+    {
+        // Keep the existing demo account usable with the seeded password.
+        if (!await userManager.CheckPasswordAsync(user, managerPassword))
+        {
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await userManager.ResetPasswordAsync(user, token, managerPassword);
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    string.Join("; ", result.Errors.Select(error => error.Description)));
+            }
+        }
+
+        if (!user.EmailConfirmed)
+        {
+            user.EmailConfirmed = true;
+            var result = await userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    string.Join("; ", result.Errors.Select(error => error.Description)));
+            }
+        }
     }
 
     if(!await userManager.IsInRoleAsync(user, "Manager"))

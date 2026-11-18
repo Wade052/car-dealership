@@ -50,6 +50,7 @@ namespace car_dealership.Models
             DealershipLocation.StateCollege => "State College, PA",
             _ => "Location not assigned"
         };
+        
         public Status Status { get; set; }
         public DateTime DateAdded { get; set; } = DateTime.UtcNow;
 
